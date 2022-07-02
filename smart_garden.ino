@@ -4,8 +4,11 @@
 #include "wifi.h"
 
 boolean state;
-#define EXE_INTERVAL_1 5000
+int EXE_INTERVAL_1 = 1000;
 unsigned long lastExecutedMillis_1 = 0;
+
+int EXE_INTERVAL_2 = 1000;
+unsigned long lastExecutedMillis_2 = 0;
 int soil;
 
 void setup() {
@@ -53,9 +56,15 @@ void loop() {
   if (currentMillis - lastExecutedMillis_1 >= EXE_INTERVAL_1) {
     lastExecutedMillis_1 = currentMillis; // save the last executed time
     //printState();
-    //Serial.println();
+    Serial.println("------------POST-----------");
     soil = analogRead(A0);
     postData();
+  }
+
+  if (currentMillis - lastExecutedMillis_2 >= EXE_INTERVAL_2) {
+    lastExecutedMillis_2 = currentMillis;
+    Serial.println("------------GET-----------");
+    getControl();
   }
 }
 
@@ -94,16 +103,62 @@ void postData(){
   String payload = http.getString();
 
   JSONVar response = JSON.parse(payload);
-
-  // JSON.typeof(jsonVar) can be used to get the type of the var
+  
   if (JSON.typeof(response) == "undefined") {
     Serial.println("Parsing input failed!");
+    http.end();
     return;
   }
   const char* StatusMessage = response["status"];
   Serial.println(String(StatusMessage));
 
-  http.end();  //Close connection
+  http.end();
+ 
+  } 
+  else {
+ 
+    Serial.println("Error in WiFi connection");
+ 
+  }
+}
+
+void getControl(){
+  
+  if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
+ 
+  HTTPClient http;    //Declare object of class HTTPClient
+
+  http.begin("http://192.168.1.100:8081/status");      //Specify request destination
+ 
+
+  int httpResponseCode = http.GET(); 
+  Serial.println(httpResponseCode);
+  if(httpResponseCode != 200){
+    Serial.println("Could not connect to the server");
+    http.end();
+    return;
+  }
+  
+  String payload = http.getString();
+
+  JSONVar response = JSON.parse(payload);
+  
+  if (JSON.typeof(response) == "undefined") {
+    Serial.println("Parsing input failed!");
+    http.end();
+    return;
+  }
+  const char* Interval = response["interval"];
+
+//  
+//
+  
+  int n = int(response["interval"]);
+//  String n = String(Interval);
+  Serial.println(n);
+  EXE_INTERVAL_1 = n;
+
+  http.end();
  
   } 
   else {

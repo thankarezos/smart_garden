@@ -6,17 +6,38 @@ const router = express.Router();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get('/test', function (req, res) {
-   res.end(books);
+var intervalS = 10000;
+
+app.get('/status', function (req, res) {
+   var obj = {};
+
+   res.end(JSON.stringify(
+      { 
+        interval: intervalS
+      }
+   ,null,4));
 })
+
+var soilSensitivity = 750
+
 router.post('/handle',(req,res) => {
 
    var soilSensor = req.body.soil;
-
+   var isWet;
+   
+   
    
    if(soilSensor != null && soilSensor >=0 && soilSensor <=1024){
+
+      if(soilSensor < soilSensitivity ){
+         isWet = "Yes";
+      }
+      else{
+         isWet = "No";
+      }
+
       res.end(succsess);
-      console.log(req.body);
+      console.log(soilSensor + " " + isWet);
    }
    else{
       res.status(400);
