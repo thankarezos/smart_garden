@@ -11,10 +11,18 @@ app.get('/test', function (req, res) {
 })
 router.post('/handle',(req,res) => {
 
-   var data = req.body.data;
+   var soilSensor = req.body.soil;
 
-   console.log(data);
-   res.end(succsess);
+   
+   if(soilSensor != null && soilSensor >=0 && soilSensor <=1024){
+      res.end(succsess);
+      console.log(req.body);
+   }
+   else{
+      res.status(400);
+      res.end(BadR);
+   }
+   
 });
 
 
@@ -34,8 +42,20 @@ const books = JSON.stringify([
     { title: "The Prophet", author: "Kahlil Gibran", year: 1923 }
 ],null,4);
 
-const succsess = JSON.stringify([
+const succsess = JSON.stringify(
    { 
      status: "succsess"
    }
-],null,4);
+,null,4);
+
+const fail = JSON.stringify(
+   { 
+     status: "fail"
+   }
+,null,4);
+
+const BadR = JSON.stringify(
+   { 
+     status: "Bad Request"
+   }
+,null,4);
