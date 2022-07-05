@@ -1,2 +1,5 @@
 wifi.h
 /node_modules
+/.vscode
+/ESP_EEPROM
+/public

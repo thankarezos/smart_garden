@@ -2,6 +2,7 @@
 #include <Arduino_JSON.h>
 #include <ESP8266WiFi.h>  
 #include "wifi.h"
+//#include <ESP_EEPROM.h>
 
 boolean state;
 int EXE_INTERVAL_1 = 1000;
@@ -10,17 +11,24 @@ unsigned long lastExecutedMillis_1 = 0;
 int EXE_INTERVAL_2 = 1000;
 unsigned long lastExecutedMillis_2 = 0;
 int soil;
+int deviceID = 1;
 
 void setup() {
   Serial.begin(115200);         // Start the Serial communication to send messages to the computer
   delay(10);
   Serial.println('\n');
-  
   connectWIFI();
+//
+//  while(!Serial);
+//  EEPROM.begin(16); // looks like 16 bytes is the minimum
+//  EEPROM.put(0, 1234); // first parameter sets the position in the buffer, second the value
+//  boolean res = EEPROM.commit();
+//  Serial.println(res); // should print 1 (true) if commit worked as expected
+//  int myVar;
+//  EEPROM.get(0, myVar);
+//  Serial.println(myVar);
   
   pinMode(A0, INPUT);
-  //Serial.println();
-  //printState();
 }
 
 void connectWIFI(){
@@ -56,28 +64,16 @@ void loop() {
   if (currentMillis - lastExecutedMillis_1 >= EXE_INTERVAL_1) {
     lastExecutedMillis_1 = currentMillis; // save the last executed time
     //printState();
-    Serial.println("------------POST-----------");
     soil = analogRead(A0);
     postData();
   }
 
   if (currentMillis - lastExecutedMillis_2 >= EXE_INTERVAL_2) {
     lastExecutedMillis_2 = currentMillis;
-    Serial.println("------------GET-----------");
     getControl();
   }
 }
 
-void printState(){
-  if(analogRead(A0) < 700){
-    state = true;
-    Serial.println("wet");   
-  }
-  else{
-    state = false;
-    Serial.println("dry");  
-  }
-}
 
 void postData(){
   
@@ -89,11 +85,13 @@ void postData(){
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
 // Data to send with HTTP POST
-  String httpRequestData = String("soil=" + String(soil));
+
+
+  String httpRequestData = String("soil=" + String(soil) + "&deviceID=" + String(deviceID));
  
 
   int httpCode = http.POST(httpRequestData);
-  Serial.println(httpCode);
+  //Serial.println(httpCode);
   if(httpCode != 200){
     Serial.println("Could not connect to the server");
     http.end();
@@ -128,11 +126,11 @@ void getControl(){
  
   HTTPClient http;    //Declare object of class HTTPClient
 
-  http.begin("http://192.168.1.100:8081/status");      //Specify request destination
+  http.begin("http://192.168.1.100:8081/status?deviceID=1");      //Specify request destination
  
 
   int httpResponseCode = http.GET(); 
-  Serial.println(httpResponseCode);
+  //Serial.println(httpResponseCode);
   if(httpResponseCode != 200){
     Serial.println("Could not connect to the server");
     http.end();
@@ -150,12 +148,7 @@ void getControl(){
   }
   const char* Interval = response["interval"];
 
-//  
-//
-  
   int n = int(response["interval"]);
-//  String n = String(Interval);
-  Serial.println(n);
   EXE_INTERVAL_1 = n;
 
   http.end();
