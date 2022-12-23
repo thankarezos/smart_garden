@@ -107,44 +107,6 @@ var server = app.listen(8081, function () {
    console.log("Example app listening at http://%s:%s", host, port)
 })
 
-const books = JSON.stringify([
-    { 
-		title: "The Alchemist", 
-		author: "Paulo Coelho", 
-		year: 1988 },
-    { title: "The Prophet", author: "Kahlil Gibran", year: 1923 }
-],null,4);
-
-const succsess = JSON.stringify(
-   { 
-     status: "succsess"
-   }
-,null,4);
-
-const fail = JSON.stringify(
-   { 
-     status: "fail"
-   }
-,null,4);
-
-const error = JSON.stringify(
-   { 
-     status: "error"
-   }
-,null,4);
-
-const DBerror = JSON.stringify(
-   { 
-     status: "Database error"
-   }
-,null,4);
-
-const BadR = JSON.stringify(
-   { 
-     status: "Bad Request"
-   }
-,null,4);
-
 function DateTime() {
    let date_ob = new Date();
 
